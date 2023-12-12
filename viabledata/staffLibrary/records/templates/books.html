@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+{%load dictionaryHelper%}
+<html>
+<head>
+    <title>Library</title>
+    <style>
+        ul{
+            list-style-type: none;
+        }
+        .book-container{
+            display: flex;
+            flex-direction: row;
+            height:180px;
+            padding: 10px;
+        }
+        .text-container{
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 60%;
+        }
+        .image-container{
+            display: flex;
+            justify-content: center;
+            height: 100%;
+            width: 40%;
+            padding-left: 40px;
+        }
+        .description-container{
+            height: 130px;
+            width: 100%;
+            overflow-y: auto;
+            border: 1px solid grey;
+            padding: 10px;
+        }
+        .header-container{
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            padding-top: 10px;
+            padding-right: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <h1>Viable Data Staff Library</h1>
+        <a href="{% url 'logoutView' %}">Logout</a>
+    </div>
+    <p>Welcome, {{request.user.firstname}} {{request.user.lastname }}!</p>
+  
+    <form method="post" action="{% url 'processOption' %}">
+        {% csrf_token %}
+        <label>
+            <input type="radio" name="option" value="option1"> List all books
+        </label>
+        <br>
+        <label> <input type="radio" name="option" value="option2"> List available books</label>
+        <br>
+        <label> <input type="radio" name="option" value="option3"> List on loan</label>
+        <br>
+        <label> <input type="radio" name="option" value="option4"> List due today</label>
+        <br>
+        <input type="submit" value="Search">
+    </form>
+
+    <h3>{{option}}</h3>
+    Total: {{count}}
+    <ul>
+        {% if option != 'Books on loan' %}
+        {% for book in books %}
+            <li>
+                <div class="book-container">
+                    <div class="text-container">
+                        <div>
+                            <strong>Title:</strong> {{ book.getTitle }}<br>
+                        </div>
+                        <div class="description-container">
+                            <strong>Description:</strong> {{ book.getDesc }}
+                        </div>
+                    </div>
+                    <div class="image-container">
+                        {% if book.getImage != 'Null' %}
+                            <img src = {{book.getImage}}/>
+                        {% endif %}
+                    </div>
+                    {% if option == 'Available books'%}
+                        {%if book in currentLoans%}
+                            <div>Due on {{currentLoans|getItem:book}}</div>
+                        {%else%}
+                            <form method="post" action="{% url 'borrowBook' %}">
+                                <input type="hidden" name="book" value="{{book.getID}}" />
+                                {% csrf_token %}
+                                <button type="submit">Borrow</button>
+                            </form>
+                        {%endif%}
+                    {% endif %}
+                </div>
+            </li>
+        {% endfor %}
+        {%else%}
+        {%for loan in loans %}
+            <li>
+                <div class="book-container">
+                    <div class="text-container">
+                        <div>
+                            <strong>Title:</strong> {{loan.bookTitle}}
+                        </div>
+                        <div class="description-container">
+                            <strong>Borrowed by:</strong> 
+                            {{ loan.firstname }} {{loan.lastname}}
+                            <br>
+                            Email: {{loan.email}}
+                            <br>
+                            Due date: {{loan.return}}
+                        </div>
+                    </div>
+                    <div class="image-container">
+                        {% if loan.image != 'Null' %}
+                            <img src = {{loan.image}}/>
+                        {% endif %}
+                    </div>
+                </div>
+            </li>
+            {%endfor%}
+            {% endif %}
+    </ul>
+</body>
+</html>

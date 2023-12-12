@@ -1,0 +1,7 @@
+{% if request.user.is_authenticated %}
+  {% include 'books.html' %}
+{% else %}
+  <a href="{% url 'loginView' %}">Login</a>
+  <a href="{% url 'signupView' %}">Signup</a>
+{% endif %}
+
