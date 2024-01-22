@@ -4,7 +4,7 @@
 Django project 
 
 TO RUN:
-
-> navigate to the directory containing manage.py file.
-> python3 manage.py runserver
+open terminal.
+navigate to the directory containing manage.py file.
+python3 manage.py runserver
 
